@@ -13,12 +13,10 @@ import tk.plogitech.darksky.forecast.*;
 import tk.plogitech.darksky.forecast.model.Forecast;
 import twitter4j.*;
 import twitter4j.JSONException;
+import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.IOException;
-
-
-
-
+import java.util.List;
 
 
 public class App
@@ -26,27 +24,44 @@ public class App
     public static void main( String[] args ) throws TwitterException, JSONException, IOException, org.json.JSONException, InterruptedException, ApiException, ForecastException {
 
 
+        // -- only include tweet processing in main
+        // -- all other things go into functions
+
 
         // sets up connection w/ twitter
 
-/*        ConfigurationBuilder cb = new ConfigurationBuilder();
+        ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
-                .setOAuthConsumerKey("pOVafGlwoMPFRfPNsYBtKnunB")
-                .setOAuthConsumerSecret("NYEz37xYur28bZteqo5gHIdyrTSe6sh8glbC72aSqT4xrMUQN6")
-                .setOAuthAccessToken("855625795494043650-Y5ihHLGjbQJD1JF0vNKiiaPeMJkJBoq")
-                .setOAuthAccessTokenSecret("AwoO4V9hhs2OufI3zP6FQMKSLqp8P14PZHqM51taS90uw");
+                .setOAuthConsumerKey("JCpkdJ2Nk989r7AjyBbw0Tk6I")
+                .setOAuthConsumerSecret("gFWfhVibbmeeZuHmnGGZn4TvnuGxEQqWSAXUUngytjw7lRFBgF")
+                .setOAuthAccessToken("859646796460683267-wgzhgtTdfVom2yzuLXPtAjHMdNIUrYJ")
+                .setOAuthAccessTokenSecret("8xsMCa2CXlGVD4br1SDiFl8wtMw01HhKWKxaPuCYo18G5");
         TwitterFactory tf = new TwitterFactory(cb.build());
-        Twitter twitter = tf.getInstance();*/
+        Twitter twitter = tf.getInstance();
 
 
 
 
-        // get address from a @mention to Woppy
+        // -- get address and user from a @mention to Woppy
 
-        String addr = "Placentia,CA";
+        List<Status> statusList = twitter.getMentionsTimeline();
+
+        Status status = statusList.get(0);                  // gets previous mention
+
+        String statusText = status.getText();
+
+        //System.out.println("User that tweeted @Woppy");
+        User user1 = status.getUser();
+
+        String userName = user1.getName();
+        long UserId = user1.getId();
+
+        String addr = parseTweet(statusText);
+
+        //String addr = "Placentia,CA";
 
 
-        // convert address to lat and long using Java Client for Google Maps Services
+        // -- convert address to lat and long using Java Client for Google Maps Services
 
         GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyCJjJuIkuPV9B8RWK_3hNcQR6aWQ9NvKVE");
 
@@ -55,7 +70,7 @@ public class App
         LatLng coordinates = results[0].geometry.location;
 
 
-        // use darksky api to get weather using @coordinates
+        // -- use darksky api to get weather using @coordinates
 
         ForecastRequest request = new ForecastRequestBuilder()
                 .key(new APIKey("e80eeba2d43761f8ef748ed60abe3391"))
@@ -67,12 +82,43 @@ public class App
         System.out.println("forecast " + forecast);
         System.out.println("forecast " + forecast.getCurrently().getTemperature());
 
-        // reply to the user that @mentioned woppy
+        // -- reply to the user that @mentioned woppy
+
+
+
+
+
 
     }
 
+/*    public static String botResponse(){
+
+    }*/
 
 
+    public static String parseTweet(String tweet){
+
+        String cmd = "woppyActivate(\""; // length of 14
+
+
+        StringBuilder address = new StringBuilder(100);
+
+        int pos = tweet.indexOf(cmd) + 15 ;
+
+        for(int n = pos; n<tweet.length();n++){
+
+            if(tweet.charAt(n) == '"'){
+                //System.out.println("found it!");
+                break;
+            }
+            address.append(tweet.charAt(n));
+
+        }
+
+        //System.out.println(address.toString());
+        return address.toString();
+
+    }
 
 
 
@@ -85,17 +131,25 @@ public class App
 
  - add a 1000 forecast der day rate limiting
 
- - user must activate woppy, WOPPY ACTIVATE
+ - add basic exceptions, and user response exceptions(syntax errors, city not found, etc. )
 
 
- - accepts US Zip codes, countries/city
 
- -- use geocoding api to covert address
+ use data point to retrieve data
 
- x -- woppy
- x -- repeats the address
- x -- returns
 
+ // running on heroku. how to activate upon startup?
+ // when bot recieves reference with zipcode wake
+ // process zip
+ // return message
+
+
+ --
+
+ - turn code into function when simplifying it would make code more readable ie) function is not relevant to context
+
+
+ Sources
  --http://www.javacreed.com/simple-gson-example/ !!!
 
  --http://stackoverflow.com/questions/19551242/parsing-a-complex-json-object-using-gson-in-java !!!!!
@@ -107,12 +161,5 @@ public class App
 
  //https://github.com/200Puls/darksky-forecast-api/blob/master/darksky-forecast-api/src/main/java/tk/plogitech/darksky/forecast/model/DataPoint.java
 
- use data point to retrieve data
-
-
- // running on heroku. how to activate upon startup?
- // when bot recieves reference with zipcode wake
- // process zip
- // return message
 
  */

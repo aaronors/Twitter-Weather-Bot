@@ -60,5 +60,6 @@
             <artifactId>darksky-forecast-api-jackson</artifactId>
             <version>0.10</version>
         </dependency>
+
     </dependencies>
 </project>

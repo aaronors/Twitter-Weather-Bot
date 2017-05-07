@@ -1,50 +1,33 @@
 /**
  * Created by aaronors on 5/3/2017.
  */
-import jdk.nashorn.internal.parser.JSONParser;
-import org.bitpipeline.lib.owm.*;
-import org.bitpipeline.lib.owm.WeatherData;
-import org.json.*;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.GsonBuilder;
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.errors.ApiException;
+import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.LatLng;
+
+import tk.plogitech.darksky.api.jackson.DarkSkyJacksonClient;
+import tk.plogitech.darksky.forecast.*;
+import tk.plogitech.darksky.forecast.model.Forecast;
 import twitter4j.*;
 import twitter4j.JSONException;
-import twitter4j.auth.AccessToken;
-import twitter4j.auth.RequestToken;
-import twitter4j.conf.ConfigurationBuilder;
-import twitter4j.json.DataObjectFactory;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import org.json.JSONObject;
 
 
-import java.net.URL;
-import java.util.List;
 
 
-/**
- * WOPPY BOT ACTIVAED
-
- - add a 1000 forecast der day rate limiting
-
- - user must activate woppy, WOPPY ACTIVATE
 
 
- - accepts US Zip codes, countries/city
-
- -- use geocoding api to covert address
-
- x -- woppy
-    x -- repeats the address
-        x -- returns
-
- --http://www.javacreed.com/simple-gson-example/ !!!
-
- */
 public class App
 {
-    public static void main( String[] args ) throws TwitterException, JSONException, IOException, org.json.JSONException {
+    public static void main( String[] args ) throws TwitterException, JSONException, IOException, org.json.JSONException, InterruptedException, ApiException, ForecastException {
+
+
+
+        // sets up connection w/ twitter
 
 /*        ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
@@ -57,51 +40,79 @@ public class App
 
 
 
-        // running on heroku. how to activate upon startup?
-        // when bot recieves reference with zipcode wake
-        // process zip
-        // return message
+
+        // get address from a @mention to Woppy
+
+        String addr = "Placentia,CA";
 
 
-        // make http request with google geocode api
+        // convert address to lat and long using Java Client for Google Maps Services
 
-        // parse returning JSON
+        GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyCJjJuIkuPV9B8RWK_3hNcQR6aWQ9NvKVE");
 
-        // check status to see if valid
+        GeocodingResult[] results =  GeocodingApi.geocode(context,addr).await();
 
-        // use lat, long as input to darksky api
+        LatLng coordinates = results[0].geometry.location;
 
-        URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=placentia+CA&key=AIzaSyCJjJuIkuPV9B8RWK_3hNcQR6aWQ9NvKVE");
 
-        BufferedReader in = new BufferedReader( new InputStreamReader(url.openStream()));
+        // use darksky api to get weather using @coordinates
 
-        StringBuilder json = new StringBuilder();
+        ForecastRequest request = new ForecastRequestBuilder()
+                .key(new APIKey("e80eeba2d43761f8ef748ed60abe3391"))
+                .location(new GeoCoordinates(new Longitude(coordinates.lng), new Latitude(coordinates.lat))).build();
 
-        String line;
-        while ((line = in.readLine()) != null)
-            json.append(line);
-        in.close();
 
-        System.out.println(json);
-        //use buffer to get string from url location
+        DarkSkyJacksonClient client = new DarkSkyJacksonClient();
+        Forecast forecast = client.forecast(request);
+        System.out.println("forecast " + forecast);
+        System.out.println("forecast " + forecast.getCurrently().getTemperature());
 
-        // use GSON to parse
-
+        // reply to the user that @mentioned woppy
 
     }
 
 
-    // deals with various formatting types (zip,city/country, et.)
-    public static void processAddr() throws IOException, org.json.JSONException {
-
-
-
-
-
-    }
 
 
 
 
 
 }
+
+
+/** ------------------------------------------------ NOTES ---------------------------------------------------
+ * WOPPY BOT ACTIVAED
+
+ - add a 1000 forecast der day rate limiting
+
+ - user must activate woppy, WOPPY ACTIVATE
+
+
+ - accepts US Zip codes, countries/city
+
+ -- use geocoding api to covert address
+
+ x -- woppy
+ x -- repeats the address
+ x -- returns
+
+ --http://www.javacreed.com/simple-gson-example/ !!!
+
+ --http://stackoverflow.com/questions/19551242/parsing-a-complex-json-object-using-gson-in-java !!!!!
+
+ --https://github.com/googlemaps/google-maps-services-java/blob/master/src/main/java/com/google/maps/model/GeocodingResult.java -> has functions for geocode info
+
+ //URL url = new URL("https://maps.googleapis.com/maps/api/geocode/json?address=placentia+CA&key=AIzaSyCJjJuIkuPV9B8RWK_3hNcQR6aWQ9NvKVE");
+
+
+ //https://github.com/200Puls/darksky-forecast-api/blob/master/darksky-forecast-api/src/main/java/tk/plogitech/darksky/forecast/model/DataPoint.java
+
+ use data point to retrieve data
+
+
+ // running on heroku. how to activate upon startup?
+ // when bot recieves reference with zipcode wake
+ // process zip
+ // return message
+
+ */

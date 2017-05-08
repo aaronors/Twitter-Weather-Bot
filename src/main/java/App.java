@@ -1,7 +1,6 @@
 /**
  * Created by aaronors on 5/3/2017.
  */
-import com.google.gson.GsonBuilder;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.errors.ApiException;
@@ -16,7 +15,6 @@ import twitter4j.JSONException;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.IOException;
-import java.util.List;
 
 
 public class App
@@ -24,12 +22,11 @@ public class App
     public static void main( String[] args ) throws TwitterException, JSONException, IOException, org.json.JSONException, InterruptedException, ApiException, ForecastException {
 
 
-        // -- only include tweet processing in main
-        // -- all other things go into functions
+
+
 
 
         // sets up connection w/ twitter
-
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
                 .setOAuthConsumerKey("JCpkdJ2Nk989r7AjyBbw0Tk6I")
@@ -40,34 +37,43 @@ public class App
         Twitter twitter = tf.getInstance();
 
 
+        // generate weather
+
+        String zip = generateZip();
 
 
-        // -- get address and user from a @mention to Woppy
+        Forecast forecast = getForecast(zip);
+
+
+        Response response = new Response(forecast,zip);
+
+        //System.out.println(response.getWeather());
+
+        twitter.updateStatus(response.getWeather());
+        //twitter.updateStatus("BEEEEEEEEP");
+
+
+        // respond to @mentions
+
+
+
+
+
+
+
+/*        // -- get address and user from a @mention to Woppy
 
         List<Status> statusList = twitter.getMentionsTimeline();
-
         Status status = statusList.get(0);                  // gets previous mention
-
-        String statusText = status.getText();
-
-        //System.out.println("User that tweeted @Woppy");
         User user1 = status.getUser();
-
         String userName = user1.getName();
         long UserId = user1.getId();
-
-        String addr = parseTweet(statusText);
-
-        //String addr = "Placentia,CA";
+        String addr = parseTweet(status.getText());
 
 
         // -- convert address to lat and long using Java Client for Google Maps Services
 
-        GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyCJjJuIkuPV9B8RWK_3hNcQR6aWQ9NvKVE");
-
-        GeocodingResult[] results =  GeocodingApi.geocode(context,addr).await();
-
-        LatLng coordinates = results[0].geometry.location;
+        LatLng coordinates = getCoordinates(addr);
 
 
         // -- use darksky api to get weather using @coordinates
@@ -82,7 +88,8 @@ public class App
         System.out.println("forecast " + forecast);
         System.out.println("forecast " + forecast.getCurrently().getTemperature());
 
-        // -- reply to the user that @mentioned woppy
+        // -- reply to the user that @mentioned woppy*/
+
 
 
 
@@ -121,6 +128,46 @@ public class App
     }
 
 
+    public static String generateZip(){
+
+        StringBuilder zip = new StringBuilder();
+
+
+        for(int n = 0; n < 5; n++) {
+            zip.append((int)(Math.random() * 9 + 0));
+        }
+
+
+        return zip.toString();
+
+    }
+
+
+    public static Forecast getForecast (String addr) throws InterruptedException, ApiException, IOException, ForecastException {
+
+        GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyCJjJuIkuPV9B8RWK_3hNcQR6aWQ9NvKVE");
+        GeocodingResult[] results =  GeocodingApi.geocode(context,addr).await();
+        LatLng coordinates = results[0].geometry.location;
+
+        // -- use darksky api to get weather using @coordinates
+
+        ForecastRequest request = new ForecastRequestBuilder()
+                .key(new APIKey("e80eeba2d43761f8ef748ed60abe3391"))
+                .location(new GeoCoordinates(new Longitude(coordinates.lng), new Latitude(coordinates.lat))).build();
+
+
+        DarkSkyJacksonClient client = new DarkSkyJacksonClient();
+        Forecast forecast = client.forecast(request);
+
+        return forecast;
+
+    }
+
+    public static void weatherUpdate(LatLng coordinates){
+
+
+
+    }
 
 
 }
@@ -128,6 +175,16 @@ public class App
 
 /** ------------------------------------------------ NOTES ---------------------------------------------------
  * WOPPY BOT ACTIVAED
+ *
+ *
+ * // woppy.getWeather("Los Angeles,California")
+ *
+ *
+ *  - factory method that implements one out of 3 classes, returns the message from that class
+ *
+ *  - wake up every hour, return weather for random zip code
+ *
+ *  - respond to missed messages
 
  - add a 1000 forecast der day rate limiting
 

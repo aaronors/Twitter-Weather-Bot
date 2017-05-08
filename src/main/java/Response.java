@@ -6,6 +6,8 @@ import com.google.maps.model.LatLng;
 import tk.plogitech.darksky.forecast.model.Forecast;
 
 import java.io.IOException;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,6 +26,9 @@ public class Response {
     final String df  = "\u00b0F";
 
 
+
+
+
     public Response(Forecast forecast, String zip) throws InterruptedException, ApiException, IOException {
 
         GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyCJjJuIkuPV9B8RWK_3hNcQR6aWQ9NvKVE");
@@ -35,23 +40,26 @@ public class Response {
 
 
         Double f = toFahrenheit(forecast.getCurrently().getTemperature());
-
-
+        f = Math.round(f*100d)/100d;
         temperature = f.toString();
 
         Double f1 = toFahrenheit(forecast.getCurrently().getApparentTemperature());
-
+        f1 = Math.round(f1*100d)/100d;
         apparentTemperature = f1.toString();
 
         Double precipPercentage = forecast.getCurrently().getPrecipProbability()*100;
+        precipPercentage = Math.round(precipPercentage*100d)/100d;
         precipitationProbability = precipPercentage.toString();
 
+
         Double humidityPercentage = forecast.getCurrently().getHumidity()*100;
+        humidityPercentage = Math.round(humidityPercentage*100d)/100d;
         humidity = humidityPercentage.toString();
 
         summary = forecast.getCurrently().getIcon();
 
         System.out.println(forecast.getCurrently().getTemperature());
+
 
 
     }
@@ -80,7 +88,7 @@ public class Response {
 
         list.add(zipStr.toString()); // 	9..3..4..3..5!
 
-        list.add(address+"\n"); //	Wisconsin, indiana
+        list.add(address+"\n"); //	LA,Cali
 
         list.add(temperature + df +"\n"); //42 degrees F
 
@@ -117,6 +125,21 @@ public class Response {
         return reply.toString();
 
     }
+
+
+
+    public String editAddress(String addr){
+
+        String formattedAddr = "";
+
+
+
+        return formattedAddr;
+
+    }
+
+
+
 
     public String getWeatherRandom(){
 

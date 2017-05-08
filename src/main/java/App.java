@@ -16,6 +16,9 @@ import twitter4j.conf.ConfigurationBuilder;
 
 import java.io.IOException;
 
+// figure out how to run w/ command
+// - create jar file. run jar file in heroku?
+
 
 public class App
 {

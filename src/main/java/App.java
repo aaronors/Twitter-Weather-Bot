@@ -32,10 +32,10 @@ public class App
         // sets up connection w/ twitter
         ConfigurationBuilder cb = new ConfigurationBuilder();
         cb.setDebugEnabled(true)
-                .setOAuthConsumerKey("JCpkdJ2Nk989r7AjyBbw0Tk6I")
-                .setOAuthConsumerSecret("gFWfhVibbmeeZuHmnGGZn4TvnuGxEQqWSAXUUngytjw7lRFBgF")
-                .setOAuthAccessToken("859646796460683267-wgzhgtTdfVom2yzuLXPtAjHMdNIUrYJ")
-                .setOAuthAccessTokenSecret("8xsMCa2CXlGVD4br1SDiFl8wtMw01HhKWKxaPuCYo18G5");
+                .setOAuthConsumerKey(" ")
+                .setOAuthConsumerSecret(" ")
+                .setOAuthAccessToken(" ")
+                .setOAuthAccessTokenSecret(" ");
         TwitterFactory tf = new TwitterFactory(cb.build());
         Twitter twitter = tf.getInstance();
 
@@ -148,14 +148,14 @@ public class App
 
     public static Forecast getForecast (String addr) throws InterruptedException, ApiException, IOException, ForecastException {
 
-        GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyCJjJuIkuPV9B8RWK_3hNcQR6aWQ9NvKVE");
+        GeoApiContext context = new GeoApiContext().setApiKey(" ");
         GeocodingResult[] results =  GeocodingApi.geocode(context,addr).await();
         LatLng coordinates = results[0].geometry.location;
 
         // -- use darksky api to get weather using @coordinates
 
         ForecastRequest request = new ForecastRequestBuilder()
-                .key(new APIKey("e80eeba2d43761f8ef748ed60abe3391"))
+                .key(new APIKey(" "))
                 .location(new GeoCoordinates(new Longitude(coordinates.lng), new Latitude(coordinates.lat))).build();
 
 

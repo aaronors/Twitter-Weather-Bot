@@ -31,7 +31,7 @@ public class Response {
 
     public Response(Forecast forecast, String zip) throws InterruptedException, ApiException, IOException {
 
-        GeoApiContext context = new GeoApiContext().setApiKey("AIzaSyCJjJuIkuPV9B8RWK_3hNcQR6aWQ9NvKVE");
+        GeoApiContext context = new GeoApiContext().setApiKey(" ");
         GeocodingResult[] results =  GeocodingApi.geocode(context,zip).await();
         LatLng coordinates = results[0].geometry.location;
 
